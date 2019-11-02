@@ -52,7 +52,7 @@ def plot_overlay(closes, rsi, timestamps):
     color = 'tab:green'
     ax1.set_xlabel('time')
     ax1.set_ylabel('price', color=color)
-    ax1.set_ylim(min(closes), max(closes))
+    ax1.set_ylim(min(closes)-100, max(closes))
     ax1.plot(timestamps, closes, color=color, linewidth=0.5)
     ax1.tick_params(axis='y', labelcolor=color)
 
@@ -60,7 +60,7 @@ def plot_overlay(closes, rsi, timestamps):
 
     color = 'tab:blue'
     ax2.set_ylabel('rsi', color=color)  # we already handled the x-label with ax1
-    ax2.set_ylim(-100, 200)
+    ax2.set_ylim(0, 400)
     ax2.plot(timestamps, rsi, color=color,  linewidth=0.5)
     ax2.tick_params(axis='y', labelcolor=color)
 
@@ -74,8 +74,8 @@ market = 'BTCUSDT'
 interval = '5m'
 rsi_interval = 14
 
-# get data
-candles = get_candles(market, interval)
+# get data from binance
+candles = get_candles(market, interval, 1000)
 closes = get_closes(candles)
 timestamps = get_timestamp(candles)
 time = np.array(timestamps)

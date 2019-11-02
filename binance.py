@@ -1,7 +1,8 @@
 import requests
 
-def get_candles(market, tick_interval):
-    url = 'https://api.binance.com/api/v1/klines?symbol='+market+'&interval='+tick_interval
+def get_candles(market, tick_interval, limit=500):
+    # max limit 1000, default 500
+    url = 'https://api.binance.com/api/v1/klines?symbol='+market+'&interval='+tick_interval+'&limit='+str(limit)
     data = requests.get(url).json()
     return data
 
