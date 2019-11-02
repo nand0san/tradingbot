@@ -3,6 +3,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 from binance_requests import get_candles
 from datetime import datetime
 from indicators import rsi
@@ -67,6 +68,16 @@ def plot_overlay(closes, rsi, timestamps):
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
 
     plt.show()
+
+def animate(closes, rsi, timestamps):
+    closes = closes[14:]
+    timestamps = timestamps[14:]
+
+    fig, ax1 = plt.add_subplot(1, 1, 1)
+
+    def animate(i):
+        x, y = (timestamps, closes)
+
 
 
 # test
