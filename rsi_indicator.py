@@ -5,6 +5,7 @@ import numpy as np
 def rsi(prices, period=14):
 
     # https://technical-indicators.readthedocs.io/en/latest/_modules/technical_indicators/technical_indicators.html
+    #
     # Input:
     #   prices ndarray
     #   period int > 1 and < len(prices) (optional and defaults to 14)
