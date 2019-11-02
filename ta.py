@@ -3,7 +3,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-from binance import get_candles
+from binance_requests import get_candles
 from datetime import datetime
 from rsi_indicator import rsi
 
@@ -74,7 +74,8 @@ market = 'BTCUSDT'
 interval = '5m'
 rsi_interval = 14
 
-# get data from binance
+
+# get data from binance_requests.py
 candles = get_candles(market, interval, 1000)
 closes = get_closes(candles)
 timestamps = get_timestamp(candles)

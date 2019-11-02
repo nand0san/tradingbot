@@ -3,3 +3,4 @@ secret*
 venv/
 pruebas/
 test*
+log/
