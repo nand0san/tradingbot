@@ -27,28 +27,31 @@ def get_timestamp(_candles):
     return _timestamps
 
 
-def plot_graph(_x, _y, _market):
-    plt.plot(_x, _y)
-    # plt.plot(x2, y2, label='Otra')
-    plt.xlabel('Time')
-    plt.ylabel('Price')
-    plt.title(_market)
-    plt.rc('font', size=4)
-    plt.show()
-
-
-def plot_rsi(_x, _y, _market='TITULO', period=14):
-    _x = _x[period:]
-    plt.axis([min(_x), max(_x), 0, 100])
-    plot_graph(_x, _y, _market)
+# def plot_graph(_x, _y, _market):
+#     plt.plot(_x, _y)
+#     # plt.plot(x2, y2, label='Otra')
+#     plt.xlabel('Time')
+#     plt.ylabel('Price')
+#     plt.title(_market)
+#     plt.rc('font', size=4)
+#     plt.show()
+#
+#
+# def plot_rsi(_x, _y, _market='TITULO', period=14):
+#     _x = _x[period:]
+#     plt.axis([min(_x), max(_x), 0, 100])
+#     plot_graph(_x, _y, _market)
 
 
 def plot_overlay(closes, rsi, timestamps):
+
+    plt.style.use('seaborn')
+
     closes = closes[14:]
     timestamps = timestamps[14:]
 
     fig, ax1 = plt.subplots()
-
+    # plt.gcf().autofmt_xdate()
     color = 'tab:green'
     ax1.set_xlabel('time')
     ax1.set_ylabel('price', color=color)

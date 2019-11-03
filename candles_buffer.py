@@ -16,12 +16,12 @@ try:
 except:
     os.mkdir(OUTPUT_DIR)
 
-# # inicio archivo vacio
-# fieldnames = ['Timestamp', 'Close Price']
-# filename_path = os.path.join(OUTPUT_DIR, CSV_FILE)
-# with open(filename_path, 'w') as csv_file:
-#     csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-#     csv_writer.writeheader()
+# inicio archivo vacio
+fieldnames = ['Timestamp', 'Close Price']
+filename_path = os.path.join(OUTPUT_DIR, CSV_FILE)
+with open(filename_path, 'w') as csv_file:
+    csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+    csv_writer.writeheader()
 
 def get_candles(market, tick_interval, limit=500):
     # max limit 1000, default 500
@@ -35,17 +35,17 @@ def parse_timestamp_price_lists(candles):
         lines.append([candle[6], candle[4]])
     return lines
 
-# def write_line_to_csv(line):
-#     with open(filename_path, 'a') as csvfile:
-#         writer = csv.writer(csvfile)
-#         writer.writerow(line)
+def write_line_to_csv(line):
+    with open(filename_path, 'a') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(line)
 
 # test
 market = 'BTCUSDT'
 interval = '1m'
 
 # get initial data from binance
-candles = get_candles(market, interval, 1000)
+candles = get_candles(market, interval, 500)
 lines = parse_timestamp_price_lists(candles)
 
 # write to csv initial data, buffer only closed candles
@@ -53,7 +53,7 @@ bufferbtc = []
 for line in lines:
     current_time = time.time()*1000
     if current_time > line[0]:
-        # write_line_to_csv(line)
+        write_line_to_csv(line)
         bufferbtc.append(line)
 
 # print(f'Current time: {time.time()*1000}')
@@ -65,7 +65,7 @@ def bufferFeed(new_value, buffer, market, interval):
         new_lines = parse_timestamp_price_lists(new_candles)
         if new_lines[0][0] != buffer[-1][0]:
             print(f'Nueva vela cerrada: {new_lines[0][0]}: {new_lines[0][1]}')
-            # write_line_to_csv(new_lines[0])
+            write_line_to_csv(new_lines[0])
             buffer.append(new_lines[0])
             buffer.pop(0)
             new_value.put(new_lines[0])

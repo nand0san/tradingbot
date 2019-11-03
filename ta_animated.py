@@ -1,102 +1,89 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import numpy as np
+import requests
+import time
+from multiprocessing import Process, Queue
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
-from binance_requests import get_candles
-from datetime import datetime
-from indicators import rsi
+from matplotlib.animation import FuncAnimation
 
 
-def get_closes(_candles):
-    _closes = []
-    for candle in _candles:
-        closestr = candle[4]
-        _close = float(closestr)
-        _closes.append(_close)
-    return _closes
+def get_candles(market, tick_interval, limit=500):
+    # max limit 1000, default 500
+    url = 'https://api.binance.com/api/v1/klines?symbol='+market+'&interval='+tick_interval+'&limit='+str(limit)
+    data = requests.get(url).json()
+    return data
+
+def parse_timestamp_price_lists(candles):
+    lines = []
+    for candle in candles:
+        lines.append([candle[6], float(candle[4])])
+    return lines
+
+def bufferFeed(comunicattor, buffer, market, interval):
+    while True:
+        new_candles = get_candles(market, interval, 2)
+        new_line = parse_timestamp_price_lists(new_candles)
+        if new_line[0][0] != buffer[-1][0]:
+            print(f'Nueva vela cerrada: {new_line[0][0]}: {new_line[0][1]}')
+            buffer.append(new_line[0])
+            buffer.pop(0)
+            # comunicattor.put([new_line[0][0], new_line[1][1]])  # ponemos solo los datos nuevos
+            comunicattor.put(buffer)
+        time.sleep(1)
+
+def update(frame, communicator: Queue): # here frame needs to be accepted by the function since this is used in FuncAnimations
+    data = communicator.get()  # this blocks untill it gets some data
+    for line in data:
+        xdata.append(line[0])
+        ydata.append(line[1])
+        ln.set_data(xdata, ydata)
+    return ln,
 
 
-def get_timestamp(_candles):
-    _timestamps = []
-    for candle in _candles:
-        timestamp = candle[6]  # closing timestamp
-        date = datetime.fromtimestamp(int(timestamp/1000))
-        _timestamps.append(date)
-        # _timestamps.append(timestamp)
-    return _timestamps
+if __name__ == '__main__':
 
-
-def plot_graph(_x, _y, _market):
-    plt.plot(_x, _y)
-    # plt.plot(x2, y2, label='Otra')
-    plt.xlabel('Time')
-    plt.ylabel('Price')
-    plt.title(_market)
-    plt.rc('font', size=4)
-    plt.show()
-
-
-def plot_rsi(_x, _y, _market='TITULO', period=14):
-    _x = _x[period:]
-    plt.axis([min(_x), max(_x), 0, 100])
-    plot_graph(_x, _y, _market)
-
-
-def plot_overlay(closes, rsi, timestamps):
-    closes = closes[14:]
-    timestamps = timestamps[14:]
-
+    plt.style.use('seaborn')
     fig, ax1 = plt.subplots()
 
-    color = 'tab:green'
-    ax1.set_xlabel('time')
-    ax1.set_ylabel('price', color=color)
-    ax1.set_ylim(min(closes)-100, max(closes) + 50)
-    ax1.plot(timestamps, closes, color=color, linewidth=0.5)
-    ax1.tick_params(axis='y', labelcolor=color)
+    xdata, ydata = [], []
+    ln, = plt.plot([], [])
 
-    ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+    comunicattor = Queue()
 
-    color = 'tab:blue'
-    ax2.set_ylabel('rsi', color=color)  # we already handled the x-label with ax1
-    ax2.set_ylim(0, 400)
-    ax2.plot(timestamps, rsi, color=color,  linewidth=0.5)
-    ax2.tick_params(axis='y', labelcolor=color)
+    # init data
+    market = 'BTCUSDT'
+    interval = '1m'
 
-    fig.tight_layout()  # otherwise the right y-label is slightly clipped
+    # get initial data from binance
+    candles = get_candles(market, interval, 30)
+    lines = parse_timestamp_price_lists(candles)
 
+    # create a initial buffer for closed candles
+    buffer = []
+    for line in lines:
+        current_time = time.time() * 1000
+        if current_time > line[0]:
+            buffer.append(line)
+
+    # get closes and timestamps from buffer
+    for line in buffer:
+        timestamps = []
+        closes = []
+        timestamps.append(line[0])
+        closes.append(line[1])
+
+    # first, plot old values in buffer
+    # color = 'tab:green'
+    # ax1.set_xlabel('Date')
+    # ax1.set_ylabel('Price', color=color)
+    # ax1.set_ylim(min(closes)-100, max(closes) + 50)
+    # ax1.plot(timestamps, closes, color=color, linewidth=0.5)
+    # ax1.tick_params(axis='y', labelcolor=color)
+
+    # start a process that get constant new closed candles to a queue
+    print('Start collecting from binance...')
+    p1 = Process(target=bufferFeed, args=(comunicattor, buffer, market, interval,))
+    p1.start()
+    ani = FuncAnimation(fig, update, blit=True, fargs=(comunicattor,))
     plt.show()
-
-def animate(closes, rsi, timestamps):
-    closes = closes[14:]
-    timestamps = timestamps[14:]
-
-    fig, ax1 = plt.add_subplot(1, 1, 1)
-
-    def animate(i):
-        x, y = (timestamps, closes)
-
-
-
-# test
-market = 'BTCUSDT'
-interval = '1m'
-rsi_interval = 14
-
-
-# get data from binance_requests.py
-candles = get_candles(market, interval, 1000)
-closes = get_closes(candles)
-timestamps = get_timestamp(candles)
-time = np.array(timestamps)
-
-# convert to numpy for rsi calculation
-prices = np.array(closes)
-rsi_result = rsi(prices, rsi_interval)
-y = rsi_result.tolist()
-
-# plot_rsi(timestamps, rsi_result)
-# plot_overlay(timestamps, closes, timestamps, y)
-plot_overlay(closes, rsi_result, time)
