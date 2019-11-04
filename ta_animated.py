@@ -63,7 +63,6 @@ def animate(i): # here frame needs to be accepted by the function since this is 
 if __name__ == '__main__':
 
     plt.style.use('seaborn')
-
     fig = plt.figure()
     ax1 = fig.add_subplot(1, 1, 1)
 

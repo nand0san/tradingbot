@@ -4,12 +4,7 @@ from matplotlib import style
 from multiprocessing import Process, Queue
 import time
 
-style.use('fivethirtyeight')
 
-fig = plt.figure()
-ax1 = fig.add_subplot(1, 1, 1)
-xs = []
-ys = []
 
 def animate(i):
     x = []
@@ -49,12 +44,21 @@ def read_data():
         time.sleep(1)
 
 
-com1 = Queue()
-# com2 = Queue()
+if __name__ == '__main__':
 
-p1 = Process(target=read_data)
-# print('Started process 1: ')
-p1.start()
-ani = animation.FuncAnimation(fig, animate, interval=1000)
+    style.use('fivethirtyeight')
 
-plt.show()
+    fig = plt.figure()
+    ax1 = fig.add_subplot(1, 1, 1)
+    xs = []
+    ys = []
+
+    com1 = Queue()
+    # com2 = Queue()
+
+    p1 = Process(target=read_data)
+    # print('Started process 1: ')
+    p1.start()
+    ani = animation.FuncAnimation(fig, animate, interval=1000)
+
+    plt.show()
