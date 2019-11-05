@@ -4,6 +4,7 @@ from multiprocessing import Process
 import numpy as np
 import time
 
+
 def runGraph():
     # Parameters
     print('show')
@@ -30,7 +31,7 @@ def runGraph():
 
         # Read temperature (Celsius) from TMP102
         temp_c = np.random.random(1)*40
-
+        print(temp_c, type(temp_c))
         # Add y to list
         ys.append(temp_c)
 
