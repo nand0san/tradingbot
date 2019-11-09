@@ -8,7 +8,10 @@ x_vals = []
 y_vals = []
 
 cnt = 0
-def animate(i, cnt):
+
+def animate(i):
+
+    global cnt
     print(cnt)
     print('loop ' + str(cnt))
 
@@ -19,7 +22,7 @@ def animate(i, cnt):
     cnt += 1  # this is not happening
     plt.plot(x_vals, y_vals, label='Price')
 
-ani = FuncAnimation(plt.gcf(), animate, fargs=(cnt,), interval=1000)
+ani = FuncAnimation(plt.gcf(), animate, interval=1000)
 
 # plt.tight_layout()
 plt.show()
