@@ -38,7 +38,7 @@ def getNparse_candles(market='BTCUSDT', tick_interval='1m', limit=10):
             return
 
 def animate(i):
-    plt.style.use('seaborn')
+    plt.style.use('fivethirtyeight')
     data = pd.read_csv('temp.csv')
     data['Time'] = pd.to_datetime(data['Time'])
     data.sort_values('Time', inplace=True)
