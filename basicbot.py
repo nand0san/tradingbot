@@ -5,8 +5,7 @@ from datetime import datetime
 import requests
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-import matplotlib.dates as mpl_dates
-
+plt.rcParams.update({'font.size': 8})
 
 def getNparse_candles(market='BTCUSDT', tick_interval='1m', limit=10):
 
@@ -38,7 +37,7 @@ def getNparse_candles(market='BTCUSDT', tick_interval='1m', limit=10):
             return
 
 def animate(i):
-    plt.style.use('fivethirtyeight')
+    # plt.style.use('fivethirtyeight')
     data = pd.read_csv('temp.csv')
     data['Time'] = pd.to_datetime(data['Time'])
     data.sort_values('Time', inplace=True)
@@ -48,7 +47,7 @@ def animate(i):
 
     plt.cla()
 
-    plt.plot_date(price_date, price_close, linestyle='solid')
+    plt.plot_date(price_date, price_close, linestyle='solid', linewidth=0.5, marker=None)
 
     plt.gcf().autofmt_xdate()
 
@@ -62,7 +61,7 @@ if __name__ == '__main__':
 
     market = 'BTCUSDT'
     tick_interval = '1m'
-    limit = 100
+    limit = 1000
 
     # proceso de actualziacion cosntante en marcha
     p1 = Process(target=getNparse_candles, args=(market, tick_interval, limit,))
