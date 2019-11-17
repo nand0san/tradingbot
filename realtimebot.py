@@ -57,31 +57,33 @@ def getNparse_candles(market='BTCUSDT', limit=100):
             print('Keyboard interrupted')
             return
 
-def animate(i):
-    plt.style.use('fivethirtyeight')
+def animate(i, market):
+    # plt.style.use('fivethirtyeight')
     data = pd.read_csv('init.csv')
     data['Time'] = pd.to_datetime(data['Time'])
     data.sort_values('Time', inplace=True)
 
     price_date = data['Time']
-    price_close = data['Price']
+    price = data['Price']
+    # qty = data['Qty']
 
     plt.cla()
 
-    plt.plot_date(price_date, price_close, linestyle='solid', linewidth=0.5, marker=None)
+    plt.plot_date(price_date, price, linestyle='solid', linewidth=0.5, marker=None)
+    # plt.plot_date(price_date, qty, linestyle='solid', linewidth=0.5, marker=None)
 
     plt.gcf().autofmt_xdate()
 
-    plt.title('Bitcoin Prices')
+    plt.title(market)
     plt.xlabel('Date')
-    plt.ylabel('Closing Price')
+    plt.ylabel('Price')
 
     plt.tight_layout()
 
 if __name__ == '__main__':
 
     market = 'BTCUSDT'
-    limit = 100
+    limit = 1000         #  max 1000
 
     # print(getNparse_candles(market, limit))
 
@@ -91,7 +93,7 @@ if __name__ == '__main__':
 
     time.sleep(4)
 
-    ani = animation.FuncAnimation(plt.gcf(), animate, interval=1000)
+    ani = animation.FuncAnimation(plt.gcf(), animate, fargs=(market,), interval=1000)
     plt.show()
 
     p1.join()
