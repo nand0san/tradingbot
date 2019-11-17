@@ -26,7 +26,7 @@ def getNparse_candles(market='BTCUSDT', tick_interval='1m', limit=10):
                     df = pd.DataFrame([[my_date, close_price]], columns=['Time', 'Price'])
                     result.append(df)
             result = pd.concat(result)
-
+            print(result)
             # temp_file
             result.to_csv('temp.csv', index=False)
             print(f'File updated {time.time()}')
@@ -61,7 +61,7 @@ if __name__ == '__main__':
 
     market = 'BTCUSDT'
     tick_interval = '1m'
-    limit = 1000
+    limit = 10
 
     # proceso de actualziacion cosntante en marcha
     p1 = Process(target=getNparse_candles, args=(market, tick_interval, limit,))
