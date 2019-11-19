@@ -1,36 +1,38 @@
-from multiprocessing import Process, Queue
-import time
+import requests
+from indicators import rsi
 import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
 
-def collectData(communicator):
-    while True:
+def get_all_rsi(market='BTCUSDT', period=14):
+    # intervals 1m 5m 1h 4h 1d
+    ticks = ['1m', '3m', '5m', '15m', '30m', '1h', '2h', '4h', '6h', '8h', '12h', '1d', '3d', '1w', '1M']
+    # ticks_values = [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+    ticks_weigth = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
 
-        xval = np.random.rand() + np.random.randint(0,1)
-        yval =  np.random.rand()
-        communicator.put([xval,yval]) # we use the Queue here to commuicate to the other process. Any process is
-        # allowed to put data into or extract data from. So the data collection process simply keeps putting data in.
-        time.sleep(1) # not to overload this example ;)
+    prices = []
+    data = []
+    for tick in ticks:
+        url = 'https://api.binance.com/api/v1/klines?symbol=' + market + '&interval=' + tick + '&limit=' + str(
+        period + 1)
+        got_data = requests.get(url).json()
+        closes = [float(close[4]) for close in got_data]
+        data.append(closes)
 
-def update(frame, communicator: Queue): # here frame needs to be accepted by the function since this is used in FuncAnimations
-    data = communicator.get() # this blocks untill it gets some data
-    xdata.append(data[0])
-    ydata.append(data[1])
-    ln.set_data(xdata, ydata)
-    return ln,
+    ticks_array = [np.array(x) for x in data]
 
-if __name__ == '__main__':
-    fig, ax = plt.subplots()
-    xdata, ydata = [], []
-    ln, = plt.plot([], [], 'ro')
+    rsis = []
+    for array in ticks_array:
+        rsi_tick = rsi(array, period)
+        rsis.append(rsi_tick.tolist()[0])
+    print(rsis)
+    average = sum(rsis) / len(rsis)
+    contra_media = [x - average for x in rsis]
+    print(contra_media)
 
-    communicator = Queue()
-    print('Start process...')
-    duta = Process(target=collectData, args=(communicator,))
-    duta.start()
-    ani = FuncAnimation(fig, update, blit=True, fargs=(communicator,))
-    plt.show()
-    print('...done with process')
-    duta.join()
-    print('Completed multiprocessing')
+    # promedio todos los rsi contra la media
+    average2 = sum(contra_media) / len(contra_media)
+
+    return contra_media[0], average2
+
+
+a = get_all_rsi()
+print(a)
