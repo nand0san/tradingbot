@@ -11,8 +11,8 @@ def get_candles(market, tick_interval, limit=500):
 
 # # test
 # market = 'BTCUSDT'
-# tick_interval = '1h'
-# data = get_candles(market, tick_interval)
+# tick = '1h'
+# data = get_candles(market, tick)
 # print(data)
 # print(len(data))
 # print(type(data))
