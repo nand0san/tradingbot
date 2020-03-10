@@ -4,3 +4,4 @@ venv/
 pruebas/
 log/
 buffer/
+*.csv
