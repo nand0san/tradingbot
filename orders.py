@@ -40,7 +40,7 @@ def put_order(params):
             'type': 'LIMIT',
             'timeInForce': 'GTC',
             'quantity': 0.1,
-            'price': 11500.0,
+            'price': 20500.0,
             'recvWindow': 5000,
             'timestamp': timestamp
         }
