@@ -69,7 +69,12 @@ def get_trades(API_KEY, API_SECRET, first_id=0, symbol='BTCUSDT', limit='1000', 
 
     sleep(uniform(0, 0.2))
 
-    trades = signatured_request(API_KEY, API_SECRET, params, endpoint, base_url)
+    try:  # maybe reset by peer
+        trades = signatured_request(API_KEY, API_SECRET, params, endpoint, base_url)
+    except ConnectionError:
+        os.system('say Reintentando la conexión')
+        sleep(20)
+        trades = signatured_request(API_KEY, API_SECRET, params, endpoint, base_url)
 
     if existing_file:
         append_rows_to_csv(trades, filename, header=False, symbol=symbol)
