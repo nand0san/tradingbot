@@ -62,7 +62,7 @@ def get_trades(API_KEY, API_SECRET, first_id=0, symbol='BTCUSDT', limit='1000', 
     endpoint = '/api/v3/historicalTrades?'
     params = {'symbol': symbol, 'limit': limit, 'fromId': first_id}
 
-    sleep(randint(0, 2))
+    sleep(randint(0, 1))
 
     trades = signatured_request(API_KEY, API_SECRET, params, endpoint, base_url)
 
