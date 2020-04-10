@@ -6,7 +6,7 @@ import json
 import hmac
 import os
 import hashlib
-from random import randint
+from random import randint, uniform
 from time import sleep
 from urllib.parse import urljoin, urlencode
 from secret import API_SECRET, API_KEY
@@ -67,7 +67,7 @@ def get_trades(API_KEY, API_SECRET, first_id=0, symbol='BTCUSDT', limit='1000', 
 
     params = {'symbol': symbol, 'limit': limit, 'fromId': first_id}
 
-    sleep(randint(0, 1))
+    sleep(uniform(0, 0.2))
 
     trades = signatured_request(API_KEY, API_SECRET, params, endpoint, base_url)
 
@@ -146,8 +146,11 @@ def rotate_and_create_new(filename, symbol, header):
 
 def append_rows_to_csv(data, filename, header=False, symbol='BTCUSDT'):
     keys = data[0].keys()
-    size = get_size_file(filename)
-    if size >= 1:
+    try:  # maybe no file
+        size = get_size_file(filename)
+    except FileNotFoundError:
+        size = 0
+    if size >= 0.5:
         print(f'File size GB: {size}')
         rotate_and_create_new(filename, symbol, header=keys)
     with open(filename, 'a') as output_file:
