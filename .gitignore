@@ -5,3 +5,4 @@ pruebas/
 log/
 buffer/
 *.csv
+.DS_Store

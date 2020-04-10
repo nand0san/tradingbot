@@ -9,6 +9,7 @@ import hashlib
 from random import randint
 from time import sleep
 from urllib.parse import urljoin, urlencode
+from secret import API_SECRET, API_KEY
 
 
 class BinanceException(Exception):
@@ -60,6 +61,10 @@ def get_trades(API_KEY, API_SECRET, first_id=0, symbol='BTCUSDT', limit='1000', 
                filename=f'BTCUSDT_historical_trades.csv'):
     base_url = 'https://api.binance.com/'
     endpoint = '/api/v3/historicalTrades?'
+
+    if existing_file:
+        first_id = int(first_id) + 1
+
     params = {'symbol': symbol, 'limit': limit, 'fromId': first_id}
 
     sleep(randint(0, 1))
@@ -67,9 +72,9 @@ def get_trades(API_KEY, API_SECRET, first_id=0, symbol='BTCUSDT', limit='1000', 
     trades = signatured_request(API_KEY, API_SECRET, params, endpoint, base_url)
 
     if existing_file:
-        append_row_to_csv(trades, filename, header=False)
+        append_rows_to_csv(trades, filename, header=False, symbol=symbol)
     else:
-        append_row_to_csv(trades, filename, header=True)
+        append_rows_to_csv(trades, filename, header=True, symbol=symbol)
 
     print(trades[-1])
 
@@ -85,28 +90,28 @@ def get_binance_current_time():
     return response['serverTime']
 
 
-def get_all_trades_historical(API_KEY, API_SECRET, current_time, symbol='BTCUSDT', first_trade_id=0,
+def get_all_trades_historical(API_KEY, API_SECRET, current_time, symbol='BTCUSDT', last_trade_id=0,
                               last_trade_time=0):
     trades = []
     filename = f'{symbol}_historical_trades.csv'
 
     check = check_existing_file(filename)
-    print(f'Detected file: {check}')
+    print(f'Detected file: {filename}')
     if check:
-        df = pd.read_csv(filename)
+        df = pd.read_csv(filename, low_memory=False)
         print(df.tail(5))
-        first_trade_id = df['id'].iloc[-1]
-        print(f"File's last trade: {first_trade_id}")
+        last_trade_id = df['id'].iloc[-1]
+        print(f"File's last trade: {last_trade_id}")
+
         exist = True
     else:
         exist = False
 
     while int(last_trade_time) < int(current_time):
-        i_trades, last_trade_time, last_trade_id = get_trades(API_KEY, API_SECRET, first_trade_id+1, symbol,
+        i_trades, last_trade_time, last_trade_id = get_trades(API_KEY, API_SECRET, last_trade_id, symbol,
                                                               existing_file=exist, filename=filename)
         exist = True
         trades = trades + i_trades
-        first_trade_id = last_trade_id + 1
     return trades
 
 
@@ -120,8 +125,31 @@ def data_to_new_to_csv(data, filename):
     return
 
 
-def append_row_to_csv(data, filename, header=False):
+def get_size_file(filename):
+    return os.path.getsize(filename) / (10**9)
+
+
+def rotate_and_create_new(filename, symbol, header):
+    old_files = os.listdir()
+    try:
+        last_code = max([int(f.split('.')[0].split('_')[-1]) for f in old_files if f'{symbol}_historical_trades_' in f])
+    except ValueError:
+        last_code = 0
+    new_code = last_code + 1
+    print(f'Rotate file: {new_code:02}')
+    os.rename(filename, f'{symbol}_historical_trades_{new_code:02}.csv')
+    with open(filename, 'w') as output_file:
+        dict_writer = csv.DictWriter(output_file, header)
+        dict_writer.writeheader()
+    return
+
+
+def append_rows_to_csv(data, filename, header=False, symbol='BTCUSDT'):
     keys = data[0].keys()
+    size = get_size_file(filename)
+    if size >= 1:
+        print(f'File size GB: {size}')
+        rotate_and_create_new(filename, symbol, header=keys)
     with open(filename, 'a') as output_file:
         dict_writer = csv.DictWriter(output_file, keys)
         if header:
@@ -161,12 +189,10 @@ def check_existing_file(filename):
 
 if __name__ == '__main__':
     symbol = 'BTCUSDT'
-    API_KEY = 'p9BRtI7CWwNt8NCSEfwHYptU07H5h2qLTfyNX6R99ODD9t39yIuBCddJeh1XKSG0'
-    API_SECRET = 'drGWWSNKwDPKaxK3ts584viUkr6vYs439eaeCo2Co2mEtnlWpryYuDH7fgoOxFI3'
 
     current_time = get_binance_current_time()
     trades = get_all_trades_historical(API_KEY, API_SECRET, current_time=current_time, symbol=symbol,
-                                       first_trade_id=0)
+                                       last_trade_id=0)
 
     df = convert_to_df(trades)
     df.to_csv(f'{symbol}_df_historical_trades.csv', index=False, header=True, quoting=csv.QUOTE_ALL)
