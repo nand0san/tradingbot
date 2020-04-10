@@ -102,7 +102,7 @@ def get_all_trades_historical(API_KEY, API_SECRET, current_time, symbol='BTCUSDT
         exist = False
 
     while int(last_trade_time) < int(current_time):
-        i_trades, last_trade_time, last_trade_id = get_trades(API_KEY, API_SECRET, first_trade_id, symbol,
+        i_trades, last_trade_time, last_trade_id = get_trades(API_KEY, API_SECRET, first_trade_id+1, symbol,
                                                               existing_file=exist, filename=filename)
         exist = True
         trades = trades + i_trades
