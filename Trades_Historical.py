@@ -73,8 +73,9 @@ def get_trades(API_KEY, API_SECRET, first_id=0, symbol='BTCUSDT', limit='1000', 
         trades = signatured_request(API_KEY, API_SECRET, params, endpoint, base_url)
     except ConnectionError:
         os.system('say Reintentando la conexión')
-        sleep(20)
+        sleep(60)
         trades = signatured_request(API_KEY, API_SECRET, params, endpoint, base_url)
+        os.system('say Reconectado con éxito')
 
     if existing_file:
         append_rows_to_csv(trades, filename, header=False, symbol=symbol)
@@ -135,6 +136,8 @@ def get_size_file(filename):
 
 
 def rotate_and_create_new(filename, symbol, header):
+    os.system('say Creando nuevo archivo')
+
     old_files = os.listdir()
     try:
         last_code = max([int(f.split('.')[0].split('_')[-1]) for f in old_files if f'{symbol}_historical_trades_' in f])
