@@ -6,7 +6,7 @@ import json
 import hmac
 import os
 import hashlib
-from random import randint, uniform
+from random import uniform
 from time import sleep
 from urllib.parse import urljoin, urlencode
 from secret import API_SECRET, API_KEY
