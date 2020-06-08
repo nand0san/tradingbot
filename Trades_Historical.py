@@ -131,6 +131,7 @@ def data_to_new_to_csv(data, filename):
     return
 
 
+
 def get_size_file(filename):
     return os.path.getsize(filename) / (10**9)
 
@@ -206,5 +207,5 @@ if __name__ == '__main__':
                                        last_trade_id=0)
 
     df = convert_to_df(trades)
-    df.to_csv(f'{symbol}_df_historical_trades.csv', index=False, header=True, quoting=csv.QUOTE_ALL)
+    #df.to_csv(f'{symbol}_df_historical_trades.csv', index=False, header=True, quoting=csv.QUOTE_ALL)
     print(df)
